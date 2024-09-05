@@ -12,11 +12,23 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException exception){
-        ErrorResponse.ErrorResponseBuilder builder = ErrorResponse.builder();
-        builder.errorMessage(exception.getMessage());
-        builder.errorCode(exception.getErrorCode());
-        ErrorResponse errorResponse= builder.build();
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode(exception.getErrorCode())
+                .errorMessage(exception.getMessage())
+                .build();
 
         return new ResponseEntity<>(errorResponse, HttpStatus.valueOf(exception.getStatus()));
+    }
+
+    @ExceptionHandler(OrderNotFoundExeption.class)
+    public ResponseEntity<ErrorResponse> handleOrderNotFoundException(OrderNotFoundExeption exception){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .errorCode(exception.getErrorCode())
+                .errorMessage(exception.getMessage())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+
     }
 }
