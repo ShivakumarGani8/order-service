@@ -5,6 +5,8 @@ import com.ecommerce.OrderService.exception.OrderNotFoundExeption;
 import com.ecommerce.OrderService.external.client.IPaymentService;
 import com.ecommerce.OrderService.external.client.IProductService;
 import com.ecommerce.OrderService.external.request.PaymentRequest;
+import com.ecommerce.OrderService.external.response.PaymentDetails;
+import com.ecommerce.OrderService.external.response.ProductDetails;
 import com.ecommerce.OrderService.model.ErrorCode;
 import com.ecommerce.OrderService.model.OrderRequest;
 import com.ecommerce.OrderService.model.OrderResponse;
@@ -14,6 +16,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 
@@ -27,6 +30,8 @@ public class OrderServiceImpl implements IOrderService{
     private IProductService productService;
     @Autowired
     private IPaymentService paymentService;
+    @Autowired
+    private RestTemplate restTemplate;
 
     @Override
     public long placeOrder(OrderRequest orderRequest) {
@@ -62,12 +67,15 @@ public class OrderServiceImpl implements IOrderService{
         Order order=orderRepository.findById(id).orElseThrow(()->
                 new OrderNotFoundExeption("Order not found for id : "+id,ErrorCode.ORDER_NOT_FOUND));
 
+        ProductDetails productDetails= restTemplate.getForObject("http://PRODUCT-SERVICE/product/"+order.getProductId(), ProductDetails.class);
+        PaymentDetails paymentDetails= restTemplate.getForObject("http://PAYMENT-SERVICE/payment/order/"+order.getOrderId(),PaymentDetails.class);
+
         OrderResponse orderResponse= OrderResponse.builder()
                 .orderId(order.getOrderId())
                 .quantity(order.getQuantity())
-                .amount(order.getAmount())
                 .orderStatus(order.getOrderStatus())
-                .paymentMode(order.getPaymentMode())
+                .productDetails(productDetails)
+                .paymentDetails(paymentDetails)
                 .build();
 
         return orderResponse;

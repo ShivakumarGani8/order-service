@@ -23,9 +23,6 @@ public class Order {
     @Column(name= "ORDER_ID")
     private long orderId;
 
-    @Column(name = "PRODUCT_ID")
-    private long productId;
-
     @Column(name = "QUANTITY")
     private long quantity;
 
@@ -38,6 +35,9 @@ public class Order {
 
     @Column(name = "AMOUNT")
     private double amount;
+
+    @Column(name = "PRODUCT_ID")
+    private long productId;
 
     @Column(name = "PAYMENT_MODE")
     @Enumerated(EnumType.STRING)
